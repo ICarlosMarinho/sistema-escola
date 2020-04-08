@@ -1,0 +1,19 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Backend for sistema-escola",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ICarlosMarinho/sistema-escola.git"
+  },
+  "author": "Carlos Marinho",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ICarlosMarinho/sistema-escola/issues"
+  },
+  "homepage": "https://github.com/ICarlosMarinho/sistema-escola#readme"
+}
