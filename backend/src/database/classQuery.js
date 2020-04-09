@@ -26,7 +26,7 @@ async function selectAll() {
 
 	try {
 		connection = await getConnection();
-		const [rows] = await connection.execute(
+		const [ rows ] = await connection.execute(
 			"SELECT hex(_id) AS id, code, name, period, start_at, end_at FROM Class ORDER BY code"
 		);
 
@@ -45,9 +45,7 @@ async function selectByCode(code) {
 
 	try {
 		connection = await getConnection();
-		const [
-			row,
-		] = await connection.execute(
+		const [ row ] = await connection.execute(
 			"SELECT hex(_id) AS id, code, name, period, start_at, end_at FROM Class WHERE code = ?",
 			[code]
 		);
