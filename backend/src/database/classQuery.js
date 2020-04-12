@@ -5,7 +5,7 @@ async function insert({ name, period, start_at, end_at }) {
 
 	try {
 		connection = await getConnection();
-		selectByCode(2).then((data) => console.log(data));
+		
 		await connection.execute(
 			"INSERT INTO Class (`name`, period, start_at, end_at) VALUES (?, ?, ?, ?)",
 			[name, period, start_at, end_at]
@@ -16,25 +16,6 @@ async function insert({ name, period, start_at, end_at }) {
 		console.log(error.message);
 
 		return false;
-	} finally {
-		await connection.end();
-	}
-}
-
-async function selectAll() {
-	var connection;
-
-	try {
-		connection = await getConnection();
-		const [ rows ] = await connection.execute(
-			"SELECT hex(_id) AS id, code, name, period, start_at, end_at FROM Class ORDER BY code"
-		);
-
-		return rows;
-	} catch (error) {
-		console.log(error.message);
-
-		return null;
 	} finally {
 		await connection.end();
 	}
@@ -100,7 +81,6 @@ async function deleteByCode(code) {
 
 module.exports = {
 	insert,
-	selectAll,
 	selectByCode,
 	updateByCode,
 	deleteByCode,
