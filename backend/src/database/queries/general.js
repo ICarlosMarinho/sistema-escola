@@ -1,4 +1,4 @@
-const getConnection = require("./connection");
+const getConnection = require("../config/connection");
 
 async function selectAll({ table, orderBy }) {
 	var connection;

@@ -1,4 +1,4 @@
-const getConnection = require("./connection");
+const getConnection = require("../config/connection");
 
 async function insert({ cpf, image, full_name, tel_number, email, password_hash, type }) {
     var connection;

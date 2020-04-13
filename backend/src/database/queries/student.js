@@ -1,4 +1,4 @@
-const getConnection = require("./connection");
+const getConnection = require("../config/connection");
 
 async function insert(student, parents) {
     var connection;
@@ -98,7 +98,48 @@ async function updateById({ id, cpf, bCertificate, image, fullName, age, address
     }
 }
 
+async function deleteById(id) {
+    var connection;
+
+    try {
+        connection = await getConnection();
+        const [ parentIds ] = await connection.execute(
+            "SELECT hex(Parent_id) as Parent_id FROM Student_has_Parent WHERE Student_id = unhex(?)",
+            [id]
+        );
+
+        connection.query("SET autocommit = 0");
+        connection.query("START TRANSACTION");
+
+        for (const { Parent_id } of parentIds) {
+            const [ [ studentCount ] ] = await connection.execute(
+                "SELECT COUNT(Student_id) AS value FROM Student_has_Parent WHERE Parent_id = unhex(?)",
+                [Parent_id]
+            );
+
+            if (studentCount.value < 2)
+                await connection.execute("DELETE FROM Parent WHERE _id = unhex(?)", [Parent_id]);
+        }
+
+        await connection.execute("DELETE FROM Student WHERE _id = unhex(?)", [id]);
+        await connection.query("COMMIT");
+
+        return true;
+    } catch (error) {
+        console.log(error.message);
+
+        return false;
+    } finally {
+        await connection.end();
+    }
+}
+
 module.exports = {
     insert,
-    updateById
+    updateById,
+    deleteById
 }
+
+
+deleteById("6f7882388116cd8b6cfc038745f17ec5")
+.then(data => console.log(data));
