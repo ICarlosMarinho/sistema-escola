@@ -65,16 +65,3 @@ module.exports = {
     selectById,
     deleteById
 }
-
-selectAll({
-    table: "Student",
-    orderBy: "_id"
-}).then(data => {
-    console.log(data)
-});
-
-
-// deleteById({
-//     table: "Student",
-//     id: "f8deb755bc9b24e60e8e00c184a4a473"
-// }).then(success => console.log(success));

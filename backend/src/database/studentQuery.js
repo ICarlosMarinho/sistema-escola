@@ -5,6 +5,10 @@ async function insert(student, parents) {
 
     try {
         connection = await getConnection();
+        const [ subjects ] = await connection.execute(
+            "SELECT hex(_id) as _id FROM Subject WHERE Class_id = unhex(?)",
+            [student.classId]
+        );
 
         await connection.query("SET autocommit = 0");
         await connection.query("START TRANSACTION");
@@ -25,6 +29,12 @@ async function insert(student, parents) {
             );
         }
         
+        for (const subject of subjects) {
+            await connection.execute(
+                "INSERT INTO Absence (Student_id, Subject_id) VALUES (@student_id, unhex(?))",
+                [subject._id]
+            );
+        }
         await connection.query("COMMIT");
 
         return true;
@@ -43,8 +53,13 @@ async function updateById({ id, cpf, bCertificate, image, fullName, age, address
     try {
         connection = await getConnection();
         const [ [ currentStudent ] ] = await connection.execute(
-            "SELECT cpf, b_certificate FROM Student WHERE _id = unhex(?)",
+            "SELECT cpf, b_certificate, hex(Class_id) FROM Student WHERE _id = unhex(?)",
             [id]
+        );
+
+        const [ subjects ] = await connection.execute(
+            "SELECT hex(_id) as _id FROM Subject WHERE Class_id = unhex(?)",
+            [classId]
         );
 
         await connection.query("SET autocommit = 0");
@@ -60,6 +75,16 @@ async function updateById({ id, cpf, bCertificate, image, fullName, age, address
             "UPDATE Student SET image = ?, full_name = ?, age = ?, address = ?, desabilities = ?, Class_id = unhex(?) WHERE _id = unhex(?)",
             [image, fullName, age, address, desabilities, classId, id]
         );
+
+        if(currentStudent.Class_id !== classId) {
+
+            for (const subject of subjects) {
+                await connection.execute(
+                    "INSERT INTO Absence (Student_id, Subject_id) VALUES (unhex(?), unhex(?))",
+                    [id, subject._id]
+                );   
+            }
+        }
 
         await connection.query("COMMIT");
 
