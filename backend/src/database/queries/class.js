@@ -1,6 +1,6 @@
 const getConnection = require("../config/connection");
 
-async function insert({ name, period, start_at, end_at }) {
+async function insert({ name, period, startAt, endAt }) {
 	var connection;
 
 	try {
@@ -8,7 +8,7 @@ async function insert({ name, period, start_at, end_at }) {
 		
 		await connection.execute(
 			"INSERT INTO Class (`name`, period, start_at, end_at) VALUES (?, ?, ?, ?)",
-			[name, period, start_at, end_at]
+			[name, period, startAt, endAt]
 		);
 
 		return true;
@@ -21,53 +21,33 @@ async function insert({ name, period, start_at, end_at }) {
 	}
 }
 
-async function selectByCode(code) {
-	var connection;
-
-	try {
-		connection = await getConnection();
-		const [ row ] = await connection.execute(
-			"SELECT hex(_id) AS id, code, name, period, start_at, end_at FROM Class WHERE code = ?",
-			[code]
-		);
-
-		return row;
-	} catch (error) {
-		console.log(error.message);
-
-		return null;
-	} finally {
-		await connection.end();
-	}
-}
-
-async function updateByCode({ code, name, period, start_at, end_at }) {
+async function updateById(id, { name, period, startAt, endAt }) {
 	var connection;
 
 	try {
 		connection = await getConnection();
 
 		await connection.execute(
-			"UPDATE Class SET `name` = ?, period = ?, start_at = ?, end_at = ? WHERE code = ?",
-			[name, period, start_at, end_at, code]
+			"UPDATE Class SET `name` = ?, period = ?, start_at = ?, end_at = ? WHERE _id = unhex(?)",
+			[name, period, startAt, endAt, id]
 		);
 
-		return await selectByCode(code);
+		return true;
 	} catch (error) {
 		console.log(error.message);
 
-		return null;
+		return false;
 	} finally {
 		connection.end();
 	}
 }
 
-async function deleteByCode(code) {
+async function deleteById(id) {
 	var connection;
 
 	try {
 		connection = await getConnection();
-		await connection.execute("DELETE FROM Class WHERE code = ?", [code]);
+		await connection.execute("DELETE FROM Class WHERE _id = unhex(?)", id);
 
 		return true;
 	} catch (error) {
@@ -81,7 +61,6 @@ async function deleteByCode(code) {
 
 module.exports = {
 	insert,
-	selectByCode,
-	updateByCode,
-	deleteByCode,
+	updateById,
+	deleteById
 };

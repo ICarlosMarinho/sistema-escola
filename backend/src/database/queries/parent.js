@@ -1,6 +1,6 @@
 const getConnection = require("../config/connection");
 
-async function insert({ cpf, fullName, telNumber, email, passwordHash }, studentIds) {
+async function insert({ cpf, fullName, telNumber, email, passwordHash, studentsIds }) {
     var connection;
 
     try {
@@ -10,11 +10,11 @@ async function insert({ cpf, fullName, telNumber, email, passwordHash }, student
         await connection.query("START TRANSACTION");
 
         await connection.execute(
-            "INSERT INTO Parent (cpf, full_name, tel_number, email, password_hash) VALUES (?, ?, ?, ?, ?)",
+            "CALL insert_parent(?, ?, ?, ?, ?)",
             [cpf, fullName, telNumber, email, passwordHash]
         );
 
-        for (const studentId of studentIds) {
+        for (const studentId of studentsIds) {
             await connection.execute(
                 "INSERT INTO Student_has_Parent VALUES (unhex(?), @parent_id)",
                 [studentId]
@@ -33,31 +33,70 @@ async function insert({ cpf, fullName, telNumber, email, passwordHash }, student
     }
 }
 
-async function updateById({ id, cpf, fullName, telNumber, email, passwordHash }) {
+async function index() {
     var connection;
 
     try {
         connection = await getConnection();
-        const [ [ currentParent ] ] = await connection.execute(
-            "SELECT cpf, email FROM Parent WHERE _id = unhex(?)",
+        const [ [ parents ] ] = await connection.query("CALL index_parents()");
+
+        return parents;
+    } catch (error) {
+        console.log(error.message);
+
+        return null;
+    } finally {
+        connection.end();
+    }
+} 
+
+async function selectById(id) {
+    var connection;
+
+    try {
+        connection = await getConnection();
+        const [ [ parent ] ] = await connection.query("CALL select_parent_by_id(?)", id);
+
+        return parent;
+    } catch (error) {
+        console.log(error.message);
+
+        return null;
+    } finally {
+        connection.end();
+    }
+}
+
+async function selectByStudentId(id) {
+    var connection;
+
+    try {
+        connection = await getConnection();
+        const [ [ parents ] ] = await connection.execute(
+            "CALL select_parent_by_student_id(?)",
             [id]
         );
 
-        await connection.query("SET autocommit = 0");
-        await connection.query("START TRANSACTION");
+        return parents;
+    } catch (error) {
+        console.log(error.message);
 
-        if (currentParent.cpf !== cpf)
-            await connection.execute("UPDATE Parent SET cpf = ? WHERE _id = unhex(?)", [cpf, id]);
-        
-        if (currentParent.email !== email)
-            await connection.execute("UPDATE Parent SET email = ? WHERE _id = unhex(?)", [email, id]);
+        return null;
+    } finally {
+        await connection.end();
+    }
+}
+
+async function updateById(id, { cpf, email, fullName, telNumber }) {
+    var connection;
+
+    try {
+        connection = await getConnection();
 
         await connection.execute(
-            "UPDATE Parent SET full_name = ?, tel_number = ?, password_hash WHERE _id = unhex(?)",
-            [fullName, telNumber, passwordHash, id]
+            "CALL update_parent(?, ?, ?, ?, ?)",
+            [id, cpf, email, fullName, telNumber]
         );
-        
-        await connection.query("COMMIT");
 
         return true;
     } catch (error) {
@@ -75,24 +114,25 @@ async function deleteById(id) {
     try {
         connection = await getConnection();
         const [ studentIds ] = await connection.execute(
-            "SELECT hex(Student_id) as Student_id FROM Student_has_Parent WHERE Parent_id = unhex(?)",
+            "SELECT Student_id as StudentId FROM Student_has_Parent WHERE Parent_id = unhex(?)",
             [id]
         );
 
         connection.query("SET autocommit = 0");
         connection.query("START TRANSACTION");
 
-        for (const { Student_id } of studentIds) {
+        for (const { studentId } of studentIds) {
             const [ [ parentCount ] ] = await connection.execute(
-                "SELECT COUNT(Parent_id) AS value FROM Student_has_Parent WHERE Student_id = unhex(?)",
-                [Student_id]
+                "SELECT COUNT(Parent_id) AS value FROM Student_has_Parent WHERE Student_id = ?",
+                [studentId]
             );
 
             if (parentCount.value < 2)
-                await connection.execute("DELETE FROM Student WHERE _id = unhex(?)", [Student_id]);
+                await connection.execute("DELETE FROM Student WHERE _id = ?", [studentId]);
         }
 
-        await connection.execute("DELETE FROM Parent WHERE _id = unhex(?)", [id]);
+        await connection.execute("DELETE FROM Parent WHERE User_id = unhex(?)", [id]);
+        await connection.execute("DELETE FROM User WHERE _id = unhex(?)", [id]);
         await connection.query("COMMIT");
 
         return true;
@@ -107,6 +147,9 @@ async function deleteById(id) {
 
 module.exports = {
     insert,
+    index,
+    selectById,
+    selectByStudentId,
     updateById,
     deleteById
 }

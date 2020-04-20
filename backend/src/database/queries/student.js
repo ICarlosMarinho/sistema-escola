@@ -1,40 +1,52 @@
 const getConnection = require("../config/connection");
 
-async function insert(student, parents) {
+async function insert(student) {
     var connection;
+    const { 
+        bCertificate,
+        image,
+        fullName,
+        birthDate,
+        address,
+        desabilities,
+        classId,
+        parents 
+    } = student;
 
     try {
         connection = await getConnection();
         const [ subjects ] = await connection.execute(
-            "SELECT hex(_id) as _id FROM Subject WHERE Class_id = unhex(?)",
-            [student.classId]
+            "SELECT _id as id FROM Subject WHERE Class_id = unhex(?)",
+            [classId]
         );
 
         await connection.query("SET autocommit = 0");
         await connection.query("START TRANSACTION");
 
         await connection.execute(
-            "INSERT INTO Student (cpf, b_certificate, image, full_name, age, address, desabilities, Class_id) VALUES (?, ?, ?, ?, ?, ?, ?, unhex(?))",
-            [student.cpf, student.bCertificate, student.image, student.fullName, student. age, student.address, student.desabilities, student.classId]
+            "CALL insert_student(?, ?, ?, ?, ?, ?, ?)",
+            [bCertificate, image, fullName, birthDate, address, desabilities, classId]
         );
 
         for (const parent of parents) {
+
             await connection.execute(
-                "INSERT INTO Parent (cpf, full_name, tel_number, email, password_hash) VALUES (?, ?, ?, ?, ?)",
-                [parent.cpf, parent.fullName, parent.telNumber, parent.email, parent.passwordHash]
+                "CALL insert_parent(?, ?, ?, ?, ?)",
+                [parent.cpf, parent.fullName, parent.telNumber, parent.email, null]
             ); 
             
             await connection.execute(
                 "INSERT INTO Student_has_Parent VALUES (@student_id, @parent_id)"
             );
         }
-        
+
         for (const subject of subjects) {
             await connection.execute(
-                "INSERT INTO Absence (Student_id, Subject_id) VALUES (@student_id, unhex(?))",
-                [subject._id]
+                "INSERT INTO Absence (Student_id, Subject_id) VALUES (@student_id, ?)",
+                [subject.id]
             );
         }
+
         await connection.query("COMMIT");
 
         return true;
@@ -47,42 +59,49 @@ async function insert(student, parents) {
     }
 }
 
-async function updateById({ id, cpf, bCertificate, image, fullName, age, address, desabilities, classId }) {
+async function selectByParentId(id) {
     var connection;
 
     try {
         connection = await getConnection();
-        const [ [ currentStudent ] ] = await connection.execute(
-            "SELECT cpf, b_certificate, hex(Class_id) FROM Student WHERE _id = unhex(?)",
+        const [ [ students ] ] = await connection.execute(
+            "CALL select_student_by_parent_id(?)",
             [id]
         );
 
+        return students;
+    } catch (error) {
+        console.log(error.message);
+
+        return null;
+    } finally {
+        await connection.end();
+    }
+}
+
+async function updateById(id, { bCertificate, image, fullName, birthDate, address, desabilities, classId }) {
+    var connection;
+
+    try {
+
+        const [ [ currData ] ] = await connection.execute("CALL select_student_by_id(?)", id);
+
         const [ subjects ] = await connection.execute(
-            "SELECT hex(_id) as _id FROM Subject WHERE Class_id = unhex(?)",
-            [classId]
+            "SELECT hex(_id) as subjectId FROM Subject WHERE Class_id = unhex(?)", [classId]
         );
 
         await connection.query("SET autocommit = 0");
         await connection.query("START TRANSACTION");
-        
-        if (cpf !== currentStudent.cpf)
-            await connection.execute("UPDATE Student SET cpf = ? WHERE _id = unhex(?)", [cpf, id]);
-        
-        if(bCertificate !== currentStudent.b_certificate )
-            await connection.execute("UPDATE Student SET b_certificate = ? WHERE _id = unhex(?)", [bCertificate, id]);
 
         await connection.execute(
-            "UPDATE Student SET image = ?, full_name = ?, age = ?, address = ?, desabilities = ?, Class_id = unhex(?) WHERE _id = unhex(?)",
-            [image, fullName, age, address, desabilities, classId, id]
+            "CALL update_student(?, ? , ?, ?, ?, ?, ?, ?)",
+            [id, bCertificate, image, fullName, birthDate, address, desabilities, classId]
         );
 
-        if(currentStudent.Class_id !== classId) {
+        if(currData[0].ClassId !== classId) {
 
-            for (const subject of subjects) {
-                await connection.execute(
-                    "INSERT INTO Absence (Student_id, Subject_id) VALUES (unhex(?), unhex(?))",
-                    [id, subject._id]
-                );   
+            for (const { subjectId } of subjects) {
+                await connection.execute("CALL insert_absence(?, ?)", [id, subjectId]);   
             }
         }
 
@@ -104,24 +123,24 @@ async function deleteById(id) {
     try {
         connection = await getConnection();
         const [ parentIds ] = await connection.execute(
-            "SELECT hex(Parent_id) as Parent_id FROM Student_has_Parent WHERE Student_id = unhex(?)",
+            "SELECT Parent_id as parentId FROM Student_has_Parent WHERE Student_id = unhex(?)",
             [id]
         );
 
         connection.query("SET autocommit = 0");
         connection.query("START TRANSACTION");
 
-        for (const { Parent_id } of parentIds) {
+        for (const { parentId } of parentIds) {
             const [ [ studentCount ] ] = await connection.execute(
-                "SELECT COUNT(Student_id) AS value FROM Student_has_Parent WHERE Parent_id = unhex(?)",
-                [Parent_id]
+                "SELECT COUNT(Student_id) AS value FROM Student_has_Parent WHERE Parent_id = ?",
+                [parentId]
             );
 
             if (studentCount.value < 2)
-                await connection.execute("DELETE FROM Parent WHERE _id = unhex(?)", [Parent_id]);
+                await connection.execute("DELETE FROM Parent WHERE _id = ?", [parentId]);
         }
 
-        await connection.execute("DELETE FROM Student WHERE _id = unhex(?)", [id]);
+        await connection.execute("DELETE FROM Student WHERE _id = unhex(?)", id);
         await connection.query("COMMIT");
 
         return true;
@@ -136,10 +155,7 @@ async function deleteById(id) {
 
 module.exports = {
     insert,
+    selectByParentId,
     updateById,
     deleteById
 }
-
-
-deleteById("6f7882388116cd8b6cfc038745f17ec5")
-.then(data => console.log(data));

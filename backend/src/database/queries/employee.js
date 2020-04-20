@@ -1,14 +1,14 @@
 const getConnection = require("../config/connection");
 
-async function insert({ cpf, image, full_name, tel_number, email, password_hash, type }) {
+async function insert({ cpf, image, fullName, telNumber, email, passwordHash, type }) {
     var connection;
 
     try {
         connection = await getConnection();
 
         await connection.execute(
-            "INSERT INTO Employee (cpf, image, full_name, tel_number, email, password_hash, type) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            [cpf, image, full_name, tel_number, email, password_hash, type]
+            "CALL insert_employee(?, ?, ?, ?, ?, ?, ?)",
+            [cpf, image, fullName, telNumber, email, passwordHash, type]
         );
         
         return true;
@@ -21,32 +21,54 @@ async function insert({ cpf, image, full_name, tel_number, email, password_hash,
     }
 }
 
-async function updateById({ id, cpf, image, full_name, tel_number, email, password_hash, type }) {
+async function index() {
     var connection;
 
     try {
         connection = await getConnection();
-        const [ [ currentEmployee ] ] = await connection.execute(
-            "SELECT cpf, email FROM Employee WHERE _id = unhex(?)",
-            [id]
+        const [ [ rows ] ] = await connection.query("CALL index_employees");
+
+        return rows;
+    } catch (error) {
+        console.log(error.message);
+
+        return null;
+    } finally {
+        await connection.end();
+    }
+}
+
+async function selectByUserId(userId) {
+    var connection;
+
+    try {
+        connection = await getConnection();
+        const [ [ rows ] ] = await connection.query(
+            "CALL select_employee_by_id(?)",
+            [userId]
         );
 
-        await connection.query("SET autocommit = 0");
-        await connection.query("START TRANSACTION");
+        return rows;
+    } catch (error) {
+        console.log(error.message);
 
-        if (cpf !== currentEmployee.cpf) 
-            await connection.execute("UPDATE Employee SET cpf = ? WHERE _id = unhex(?)", [cpf, id]);
-        
-        if (email !== currentEmployee.email) 
-            await connection.execute("UPDATE Employee SET email = ? WHERE _id = unhex(?)", [email, id]);
-        
+        return null;
+    } finally {
+        await connection.end();
+    }
+}
+
+
+async function updateById(id, { cpf, email, image, fullName, telNumber, type }) {
+    var connection;
+
+    try {
+        connection = await getConnection();
 
         await connection.execute(
-            "UPDATE Employee SET image = ?, full_name = ?, tel_number = ?, password_hash = ?, type = ? WHERE _id = unhex(?)",
-            [image, full_name, tel_number, password_hash, type, id]
+            "CALL update_employee(?, ?, ?, ?, ?, ?, ?, ?)",
+            [id, cpf, email, image, fullName, telNumber, type]
         );
-
-        await connection.query("COMMIT");
 
         return true;
     } catch (error) {
@@ -60,6 +82,7 @@ async function updateById({ id, cpf, image, full_name, tel_number, email, passwo
 
 module.exports = {
     insert,
-    updateById,
+    index,
+    selectByUserId,
+    updateById
 }
-

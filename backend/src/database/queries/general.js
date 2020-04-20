@@ -1,12 +1,12 @@
 const getConnection = require("../config/connection");
 
-async function selectAll({ table, orderBy }) {
+async function index({ table, fields }) {
 	var connection;
 
 	try {
         connection = await getConnection(); 
 		const [ rows ] = await connection.execute(
-			"SELECT * FROM " + connection.escapeId(table) + " ORDER BY " +  connection.escapeId(orderBy)
+            "SELECT " + fields.join() + " FROM " + connection.escapeId(table)
         );
 
 		return rows;
@@ -19,17 +19,18 @@ async function selectAll({ table, orderBy }) {
 	}
 }
 
-async function selectById({ table, id }) {
+async function selectByProperty({ table, fields, property, value }) {
     var connection;
 
     try {
         connection = await getConnection();
-        const [ row ] = await connection.execute(
-            "SELECT * FROM " + connection.escapeId(table) + " WHERE _id = unhex(?)",
-            [id]
+        const [ rows ] = await connection.execute(
+            "SELECT " + fields.join() + " FROM " + connection.escapeId(table) + " WHERE " +
+            connection.escapeId(property) + (/_id$/.test(property)? " = unhex(?)" : " = ?"),
+            [value]
         );
 
-        return row[0];
+        return rows;
     } catch (error) {
         console.log(error.message);
 
@@ -61,7 +62,7 @@ async function deleteById({ table, id }) {
 }
 
 module.exports = {
-    selectAll,
-    selectById,
+    index,
+    selectByProperty,
     deleteById
 }
