@@ -7,7 +7,8 @@ async function insert({ name, minsPerLesson, year, classId, teacherId }) {
         connection = await getConnection();
 
         await connection.execute(
-            "INSERT INTO Subject (name, mins_per_lesson, year, Class_id, Employee_id) VALUES (?, ?, ?, unhex(?), unhex(?))",
+            "INSERT INTO Subject (name, mins_per_lesson, year, Class_id, Employee_id) " +
+            "VALUES (?, ?, ?, unhex(?), unhex(?))",
             [name, minsPerLesson, year, classId, teacherId]
         );
 
@@ -48,7 +49,8 @@ async function updateById(id, { name, minsPerLesson, year, classId, teacherId })
         connection = await getConnection();
         
         await connection.execute(
-            "UPDATE Subject SET `name` = ?, mins_per_lesson = ?, year = ?, Class_id = unhex(?), Employee_id = unhex(?) WHERE _id = unhex(?)",
+            "UPDATE Subject SET `name` = ?, mins_per_lesson = ?, year = ?, " +
+            "Class_id = unhex(?), Employee_id = unhex(?) WHERE _id = unhex(?)",
             [name, minsPerLesson, year, classId, teacherId, id]
         );
 

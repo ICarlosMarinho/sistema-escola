@@ -1,11 +1,11 @@
 const subjectController = require("../controller/subject");
-const dataValidator = require("../middleware/data.validation/subject");
+const validateData = require("../middleware/data.validation/getDataValidator");
 const router = require("express").Router();
 
-router.post("/register", dataValidator, subjectController.register);
+router.post("/register", validateData("subject"), subjectController.register);
 router.get("/index", subjectController.index);
 router.get("/find/:id", subjectController.findById);
-router.put("/update/:id", dataValidator, subjectController.update);
+router.put("/update/:id", validateData("subject"), subjectController.update);
 router.delete("/delete/:id", subjectController.deleteById);
 
 module.exports = router;

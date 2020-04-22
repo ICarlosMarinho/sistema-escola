@@ -1,14 +1,20 @@
 const getConnection = require("../config/connection");
 
-async function insert({ count, date, studentId, subjectId }) {
+async function insert(absences) {
     var connection;
 
     try {
         connection = await getConnection();
 
-        await connection.execute(
-            "CALL insert_subject(?, ?, ?, ?)",
-            [count, date, studentId, subjectId]
+        await Promise.all(
+            absences.map(({ count, date, studentId, subjectId }) => {
+                const promise = connection.execute(
+                    "CALL insert_subject(?, ?, ?, ?)",
+                    [count, date, studentId, subjectId]
+                );
+
+                return promise;
+            })
         );
 
         return true;
@@ -21,17 +27,36 @@ async function insert({ count, date, studentId, subjectId }) {
     }
 }
 
+async function find({ studentId, subjectId }) {
+    var connection;
 
+    try {
+        connection = await getConnection();
+        const [ absences ] = await connection.execute(
+            "SELECT hex(_id) AS id, `date`, `count` FROM Absence " +
+            "WHERE Student_id = unhex(?) AND Subject_id = unhex(?)",
+            [studentId, subjectId]
+        );
 
-async function updateById({id, count}) {
+        return absences;
+    } catch (error) {
+        console.log(error.message);
+
+        return null;
+    } finally {
+        await connection.end();
+    }
+}
+
+async function updateById(id, {date, count}) {
     var connection;
 
     try {
         connection = await getConnection();
 
         await connection.execute(
-            "UPDATE Absence SET count = ? WHERE _id = unhex(?)",
-            [count, id ]
+            "UPDATE Absence SET `date` = ?, `count` = ? WHERE _id = unhex(?)",
+            [date, count, id]
         );
     
         return true;
@@ -45,5 +70,7 @@ async function updateById({id, count}) {
 }
 
 module.exports = {
+    insert,
+    find,
     updateById
 }

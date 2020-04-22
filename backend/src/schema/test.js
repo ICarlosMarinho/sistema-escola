@@ -11,7 +11,7 @@ module.exports = Joi.object({
 
     minGrade: Joi.number()
     .min(0)
-    .max(10)
+    .max(9)
     .precision(2)
     .required(),
 

@@ -1,11 +1,11 @@
 const studentController = require("../controller/student");
-const getDataValidator = require("../middleware/data.validation/student");
+const validateData = require("../middleware/data.validation/getDataValidator");
 const router = require("express").Router();
 
-router.post("/register", getDataValidator(), studentController.register);
+router.post("/register", validateData("student"), studentController.register);
 router.get("/index", studentController.index);
 router.get("/find/:id", studentController.findById);
-router.put("/update/:id", getDataValidator("update"), studentController.update);
+router.put("/update/:id", validateData("student", "update"), studentController.update);
 router.delete("/delete/:id", studentController.deleteById);
 
 module.exports = router;

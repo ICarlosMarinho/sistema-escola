@@ -9,12 +9,18 @@ async function insert(anotations) {
         await connection.query("SET autocommit = 0");
         await connection.query("START TRANSACTION");
 
-        for (const { date, text, studentId, teacherId } of anotations) {
-            await connection.execute(
-                "INSERT INTO Anotation (date, text, Student_id, Teacher_id) VALUES (?, ?, unhex(?), unhex(?))",
-                [date, text, studentId, teacherId]
-            );
-        }
+        
+        await Promise.all(
+            anotations.map(({ date, text, studentId, teacherId }) => {
+                const promise = connection.execute(
+                    "INSERT INTO Anotation (`date`, text, Student_id, Teacher_id) " +
+                    "VALUES (?, ?, unhex(?), unhex(?))",
+                    [date, text, studentId, teacherId]
+                );
+
+                return promise;
+            })
+        );
 
         await connection.query("COMMIT");
 
@@ -28,23 +34,17 @@ async function insert(anotations) {
     }
 }
 
-async function updateById(anotations) {
+async function updateById(id, { date, text }) {
+
     var connection;
 
     try {
         connection = await getConnection();
 
-        await connection.query("SET autocommit = 0");
-        await connection.query("START TRANSACTION");
-
-        for (const { id , date, text } of anotations) {
-            await connection.execute(
-                "UPDATE Anotation SET date = ?, text = ? WHERE _id = unhex(?)",
-                [date, text, id]
-            );
-        }
-
-        await connection.query("COMMIT");
+        await connection.execute(
+            "UPDATE Anotation SET `date` = ?, text = ? WHERE _id = unhex(?)",
+            [date, text, id]
+        );
 
         return true;
     } catch (error) {

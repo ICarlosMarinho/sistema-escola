@@ -1,6 +1,6 @@
 const Joi = require("@hapi/joi");
 
-module.exports = Joi.object({
+const objSchema = Joi.object({
 
     value: Joi.number()
     .min(0)
@@ -18,3 +18,13 @@ module.exports = Joi.object({
     .hex()
     .required()
 });
+
+const schema = Joi.array()
+    .items(objSchema)
+    .min(1)
+    .max(60)
+    .alter({
+        update: (schema) => schema = objSchema
+    });
+
+module.exports = schema;

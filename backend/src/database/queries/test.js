@@ -7,7 +7,8 @@ async function insert({ date, name, minGrade, maxGrade, subjectId }) {
         connection = await getConnection();
 
         await connection.execute(
-            "INSERT INTO Test (date, name, min_grade, max_grade, Subject_id) VALUES (?, ?, ?, ?, unhex(?))",
+            "INSERT INTO Test (date, name, min_grade, max_grade, Subject_id) " + 
+            "VALUES (?, ?, ?, ?, unhex(?))",
             [date, name, minGrade, maxGrade, subjectId]
         );
 
@@ -28,7 +29,8 @@ async function updateById(id, { date, name, minGrade, maxGrade, subjectId }) {
         connection = await getConnection();
 
         await connection.execute(
-            "UPDATE Test SET date = ?, name = ?, min_grade = ?, max_grade = ?, Subject_id = unhex(?) WHERE _id = unhex(?)",
+            "UPDATE Test SET date = ?, name = ?, min_grade = ?, max_grade = ?, " +
+            "Subject_id = unhex(?) WHERE _id = unhex(?)",
             [date, name, minGrade, maxGrade, subjectId, id]
         );
 

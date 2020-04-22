@@ -1,4 +1,4 @@
-const getConnection = require("./connection");
+const getConnection = require("../config/connection");
 
 async function insert(grades) {
     var connection;
@@ -9,12 +9,14 @@ async function insert(grades) {
         await connection.query("SET autocommit = 0");
         await connection.query("START TRANSACTION");
 
-        for (const { value, testId, studentId } of grades) {
-            await connection.execute(
+        await Promise.all(grades.map(({ value, testId, studentId }) => {
+            const promise = connection.execute(
                 "INSERT INTO Grade (value, Test_id, Student_id) VALUES (?, unhex(?), unhex(?))",
                 [value,testId, studentId]
             );
-        }
+
+            return promise;
+        }));
 
         await connection.query("COMMIT");
 
@@ -28,23 +30,37 @@ async function insert(grades) {
     }
 }
 
-async function updateById(grades) {
+async function update({ value, testId, studentId }) {
+    var connection;
+
+    try {
+        connection = await getConnection();
+    
+        connection.execute(
+            "UPDATE Grade SET value = ? WHERE Test_id = unhex(?) AND Student_id = unhex(?)",
+            [value, testId, studentId]
+        );   
+
+        return true;
+    } catch (error) {
+        console.log(error.message);
+
+        return false;
+    } finally {
+        await connection.end();
+    }
+}
+
+async function deleteByIds({ testId, studentId }) {
     var connection;
 
     try {
         connection = await getConnection();
 
-        await connection.query("SET autocommit = 0");
-        await connection.query("START TRANSACTION");
-
-        for (const { value, testId, studentId } of grades) {
-            await connection.execute(
-                "UPDATE Grade SET value = ? WHERE Test_id = unhex(?) AND Student_id = unhex(?)",
-                [value, testId, studentId]
-            );   
-        }
-
-        await connection.query("COMMIT");
+        await connection.execute(
+            "DELETE FROM Grade WHERE Test_id = unhex(?) AND Student_id = unhex(?)",
+            [testId, studentId]
+        );
 
         return true;
     } catch (error) {
@@ -56,7 +72,9 @@ async function updateById(grades) {
     }
 }
 
+
 module.exports = {
     insert, 
-    updateById
+    update,
+    deleteByIds
 }

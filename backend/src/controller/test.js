@@ -7,8 +7,8 @@ async function register({ body }, res) {
     return res.status(200).json({ registered });
 } 
 
-async function index(_, res) {
-    const tests = await generalQuery.index({
+async function findBySubjectId({ params }, res) {
+    const tests = await generalQuery.selectByProperty({
         table: "Test",
         fields: [
             "hex(_id) as id",
@@ -16,7 +16,9 @@ async function index(_, res) {
             "name",
             "min_grade as minGrade",
             "max_grade as maxGrade"
-        ]
+        ],
+        property: "Subject_id",
+        value: params.subjectId
     });
 
     return res.status(200).json(tests);
@@ -39,7 +41,7 @@ async function deleteById({ params }, res) {
 
 module.exports = {
     register,
-    index,
+    findBySubjectId,
     update,
     deleteById
 }

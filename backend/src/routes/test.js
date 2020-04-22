@@ -1,10 +1,10 @@
 const testController = require("../controller/test");
-const dataValidator = require("../middleware/data.validation/test");
+const validateData = require("../middleware/data.validation/getDataValidator");
 const router = require("express").Router();
 
-router.post("/register", dataValidator, testController.register);
-router.get("/index", testController.index);
-router.put("/update/:id", dataValidator, testController.update);
+router.post("/register", validateData("test"), testController.register);
+router.get("/find/:subjectId", testController.findBySubjectId);
+router.put("/update/:id", validateData("test"), testController.update);
 router.delete("/delete/:id", testController.deleteById);
 
 module.exports = router;

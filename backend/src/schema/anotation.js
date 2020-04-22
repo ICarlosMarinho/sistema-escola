@@ -1,8 +1,8 @@
 const Joi = require("@hapi/joi");
 
-module.exports = Joi.object({
+const objSchema = Joi.object({
     date: Joi.date()
-    .less(Date.now())
+    .max("now")
     .required(),
 
     text: Joi.string()
@@ -11,10 +11,26 @@ module.exports = Joi.object({
     studentId: Joi.string()
     .length(32)
     .hex()
-    .required(),
+    .required()
+    .alter({
+        update: (schema) => schema.forbidden()
+    }),
 
     teacherId: Joi.string()
     .length(32)
     .hex()
     .required()
+    .alter({
+        update: (schema) => schema.forbidden()
+    })
 });
+
+const schema = Joi.array()
+    .items(objSchema)
+    .min(1)
+    .max(60)
+    .alter({
+        update: (schema) => schema = objSchema
+    });
+
+module.exports = schema;
