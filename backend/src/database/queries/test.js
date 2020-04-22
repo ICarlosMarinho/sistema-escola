@@ -21,7 +21,7 @@ async function insert({ date, name, minGrade, maxGrade, subjectId }) {
     }
 }
 
-async function updateById({ id, date, name, minGrade, maxGrade, subjectId }) {
+async function updateById(id, { date, name, minGrade, maxGrade, subjectId }) {
     var connection;
 
     try {

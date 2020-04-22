@@ -15,11 +15,6 @@ async function insert(student) {
 
     try {
         connection = await getConnection();
-        const [ subjects ] = await connection.execute(
-            "SELECT _id as id FROM Subject WHERE Class_id = unhex(?)",
-            [classId]
-        );
-
         await connection.query("SET autocommit = 0");
         await connection.query("START TRANSACTION");
 
@@ -37,13 +32,6 @@ async function insert(student) {
             
             await connection.execute(
                 "INSERT INTO Student_has_Parent VALUES (@student_id, @parent_id)"
-            );
-        }
-
-        for (const subject of subjects) {
-            await connection.execute(
-                "INSERT INTO Absence (Student_id, Subject_id) VALUES (@student_id, ?)",
-                [subject.id]
             );
         }
 
@@ -84,28 +72,10 @@ async function updateById(id, { bCertificate, image, fullName, birthDate, addres
 
     try {
 
-        const [ [ currData ] ] = await connection.execute("CALL select_student_by_id(?)", id);
-
-        const [ subjects ] = await connection.execute(
-            "SELECT hex(_id) as subjectId FROM Subject WHERE Class_id = unhex(?)", [classId]
-        );
-
-        await connection.query("SET autocommit = 0");
-        await connection.query("START TRANSACTION");
-
         await connection.execute(
             "CALL update_student(?, ? , ?, ?, ?, ?, ?, ?)",
             [id, bCertificate, image, fullName, birthDate, address, desabilities, classId]
         );
-
-        if(currData[0].ClassId !== classId) {
-
-            for (const { subjectId } of subjects) {
-                await connection.execute("CALL insert_absence(?, ?)", [id, subjectId]);   
-            }
-        }
-
-        await connection.query("COMMIT");
 
         return true;
     } catch (error) {

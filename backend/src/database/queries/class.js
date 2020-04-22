@@ -42,25 +42,7 @@ async function updateById(id, { name, period, startAt, endAt }) {
 	}
 }
 
-async function deleteById(id) {
-	var connection;
-
-	try {
-		connection = await getConnection();
-		await connection.execute("DELETE FROM Class WHERE _id = unhex(?)", id);
-
-		return true;
-	} catch (error) {
-		console.log(error.message);
-
-		return false;
-	} finally {
-		await connection.end();
-	}
-}
-
 module.exports = {
 	insert,
-	updateById,
-	deleteById
+	updateById
 };

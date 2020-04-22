@@ -1,23 +1,39 @@
 const getConnection = require("../config/connection");
 
-async function updateById(absenses) {
+async function insert({ count, date, studentId, subjectId }) {
     var connection;
 
     try {
         connection = await getConnection();
 
-        await connection.query("SET autocommit = 0");
-        await connection.query("START TRANSACTION");
+        await connection.execute(
+            "CALL insert_subject(?, ?, ?, ?)",
+            [count, date, studentId, subjectId]
+        );
 
-        for (const { count, studentId, subjectId } of absenses) {
-            await connection.execute(
-                "UPDATE Absence SET count = ? WHERE Student_id = unhex(?) AND Subject_id = unhex(?)",
-                [count, studentId, subjectId]
-            );
-        }
+        return true;
+    } catch (error) {
+        console.log(error);
 
-        await connection.query("COMMIT");
+        return false;
+    } finally {
+        await connection.end();
+    }
+}
 
+
+
+async function updateById({id, count}) {
+    var connection;
+
+    try {
+        connection = await getConnection();
+
+        await connection.execute(
+            "UPDATE Absence SET count = ? WHERE _id = unhex(?)",
+            [count, id ]
+        );
+    
         return true;
     } catch (error) {
         console.log(error.message);

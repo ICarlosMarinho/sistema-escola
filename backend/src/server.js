@@ -5,6 +5,9 @@ const employeeRouter = require("./routes/employee");
 const studentRouter = require("./routes/student");
 const parentRouter = require("./routes/parent");
 const subjectRouter = require("./routes/subject");
+const classRouter = require("./routes/class");
+const testRouter = require("./routes/test");
+
 const port = process.env.PORT || 3000;
 
 app.use(json());
@@ -12,6 +15,8 @@ app.use("/employee", employeeRouter);
 app.use("/student", studentRouter);
 app.use("/parent", parentRouter);
 app.use("/subject", subjectRouter);
+app.use("/class", classRouter);
+app.use("/test", testRouter);
 
 app.listen(port, () => {
     console.log("Server is running on port:", port);
