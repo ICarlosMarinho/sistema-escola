@@ -17,9 +17,12 @@ module.exports = (resource, mode = null) => {
         ? schemas[resource].tailor(mode).error
         : schemas[resource].validate(body).error;
     
-        if(valueError)
-            return res.status(200).json({ message: valueError.message, data: false });
-    
+        if(valueError) {
+            console.log(valueError.message);
+
+            return res.status(200).json({ succeed: false });
+        }
+
         next();
     }
 }

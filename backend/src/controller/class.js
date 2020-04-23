@@ -2,9 +2,9 @@ const classQuery = require("../database/queries/class");
 const generalQuery = require("../database/queries/general");
 
 async function register({ body }, res) {
-    const registered = await classQuery.insert(body);
+    const succeed = await classQuery.insert(body);
 
-    res.status(200).json({ registered });
+    res.status(200).json({ succeed });
 }
 
 async function index(_, res) {
@@ -38,7 +38,7 @@ async function index(_, res) {
         return promise;
     }));
 
-    return res.status(200).json(classes);
+    return res.status(200).json({ data: classes });
 }
 
 async function selectById({ params }, res) {
@@ -55,8 +55,7 @@ async function selectById({ params }, res) {
         value: params.id
     });
 
-    if(!data)
-        return res.status(200).json(null);
+    if(!data) return res.status(200).json({ data: null });
         
     data.subjects = await generalQuery.selectByProperty({
         table: "Subject",
@@ -73,12 +72,12 @@ async function selectById({ params }, res) {
         value: params.id
     });
 
-    return res.status(200).json(data);
+    return res.status(200).json({ data });
 }
 
 async function update({ params, body }, res) {
     const { name, period, startAt, endAt } = body;
-    const updated = await classQuery.updateById(
+    const succeed = await classQuery.updateById(
         params.id,
     {
         name,
@@ -87,16 +86,16 @@ async function update({ params, body }, res) {
         endAt
     });
 
-    res.status(200).json({ updated });
+    return res.status(200).json({ succeed });
 }
 
 async function deleteById({ params }, res) {
-    const deleted = await generalQuery.deleteById({
+    const succeed = await generalQuery.deleteById({
         table: "Class",
         id: params.id
     });
 
-    res.status(200).json({ deleted });
+    return res.status(200).json({ succeed });
 }
 
 module.exports = {

@@ -2,9 +2,9 @@ const anotationQuery = require("../database/queries/anotation");
 const generalQuery = require("../database/queries/general");
 
 async function register({ body }, res) {
-    const registered = await anotationQuery.insert(body);
+    const succeed = await anotationQuery.insert(body);
 
-    res.status(200).json({ registered });
+    res.status(200).json({ succeed });
 }
 
 async function findByStudentId({ params }, res) {
@@ -20,19 +20,19 @@ async function findByStudentId({ params }, res) {
         value: params.studentId
     });
 
-    return res.status(200).json(anotations);
+    return res.status(200).json({ data: anotations });
 }
 
 async function update({ params, body }, res) {
-    const updated = await anotationQuery.updateById(params.id, body);
+    const succeed = await anotationQuery.updateById(params.id, body);
 
-    res.status(200).json({ updated });
+    return res.status(200).json({ succeed });
 }
 
 async function deleteById({ params }, res) {
-    const deleted = await generalQuery.deleteById(params.id);
+    const succeed = await generalQuery.deleteById(params.id);
 
-    res.status(200).json({ deleted });
+    return res.status(200).json({ succeed });
 }
 
 module.exports = {

@@ -3,9 +3,9 @@ const generalQuery = require("../database/queries/general");
 const { selectByStudentId } = require("../database/queries/parent");
 
 async function register({ body }, res) {
-	const registered = await studentQuery.insert(body);
+	const succeed = await studentQuery.insert(body);
 
-	return res.status(200).json({ registered });
+	return res.status(200).json({ succeed });
 }
 
 async function index(_, res) {
@@ -30,11 +30,11 @@ async function index(_, res) {
 		return promise;
 	}));
 
-	res.status(200).json(students);
+	return res.status(200).json({ data: students });
 }
 
 async function findById({ params }, res) {
-	const [student] = await generalQuery.selectByProperty({
+	const [ student ] = await generalQuery.selectByProperty({
 		table: "Student",
 		fields: [
 			"hex(_id) as id",
@@ -50,25 +50,25 @@ async function findById({ params }, res) {
 		value: params.id,
 	});
 
-	if (!student) return res.status(200).json(null);
+	if (!student) return res.status(200).json({ data: null });
 
 	student.parents = await selectByStudentId(student.id);
 
-	res.status(200).json(student);
+	return res.status(200).json({ data: student });
 }
 
 async function update({ params, body }, res) {
 	const { id } = params;
-	const updated = await studentQuery.updateById(id, body);
+	const succeed = await studentQuery.updateById(id, body);
 
-	return res.status(200).json({ updated });
+	return res.status(200).json({ succeed });
 }
 
 async function deleteById({ params }, res) {
 	const { id } = params;
-	const deleted = await studentQuery.deleteById(id);
+	const succeed = await studentQuery.deleteById(id);
 
-	return res.status(200).json({ deleted });
+	return res.status(200).json({ succeed });
 }
 
 module.exports = {

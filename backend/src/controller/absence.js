@@ -2,30 +2,30 @@ const absenceQuery = require("../database/queries/absence");
 const generalQuery = require("../database/queries/general");
 
 async function register({ body }, res) {
-    const registered = await absenceQuery.insert(body);
+    const succeed = await absenceQuery.insert(body);
 
-    return res.status(200).json({ registered });
+    return res.status(200).json({ succeed });
 }
 
 async function find({ params }, res) {
     const absences = await absenceQuery.find(params);
 
-    return res.status(200).json(absences);
+    return res.status(200).json({ data: absences });
 }
 
 async function update({ params, body }, res) {
-    const updated = await absenceQuery.updateById(params.id, body);
+    const succeed = await absenceQuery.updateById(params.id, body);
 
-    return res.status(200).json({ updated });
+    return res.status(200).json({ succeed });
 }
 
-async function deletebyId({ params }) {
-    const deleted = await generalQuery.deleteById({
+async function deletebyId({ params }, res) {
+    const succeed = await generalQuery.deleteById({
         table: "Absence",
         id: params.id
     });
 
-    res.status(200).json({ deleted });
+    return res.status(200).json({ succeed });
 }
 
 module.exports = {

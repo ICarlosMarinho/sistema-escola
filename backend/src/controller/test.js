@@ -2,9 +2,9 @@ const testQuery = require("../database/queries/test");
 const generalQuery = require("../database/queries/general");
 
 async function register({ body }, res) {
-    const registered = await testQuery.insert(body);
+    const succeed = await testQuery.insert(body);
 
-    return res.status(200).json({ registered });
+    return res.status(200).json({ succeed });
 } 
 
 async function findBySubjectId({ params }, res) {
@@ -21,22 +21,22 @@ async function findBySubjectId({ params }, res) {
         value: params.subjectId
     });
 
-    return res.status(200).json(tests);
+    return res.status(200).json({ data: tests });
 }
 
 async function update({ params, body }, res) {
-    const updated = await testQuery.updateById(params.id, body);
+    const succeed = await testQuery.updateById(params.id, body);
 
-    return res.status(200).json({ updated });
+    return res.status(200).json({ succeed });
 }
 
 async function deleteById({ params }, res) {
-    const deleted = await generalQuery.deleteById({
+    const succeed = await generalQuery.deleteById({
         table: "Test",
         id: params.id
     });
 
-    return res.status(200).json({ deleted });
+    return res.status(200).json({ succeed });
 }
 
 module.exports = {

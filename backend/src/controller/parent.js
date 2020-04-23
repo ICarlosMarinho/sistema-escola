@@ -10,7 +10,7 @@ async function register({ body }, res) {
 		? await bcrypt.hash(password, saltRounds)
         : password;
         
-	const registered = await parentQuery.insert({
+	const succeed = await parentQuery.insert({
 		cpf,
 		fullName,
 		telNumber,
@@ -19,7 +19,7 @@ async function register({ body }, res) {
 		studentsIds,
 	});
 
-	return res.status(200).json({ registered });
+	return res.status(200).json({ succeed });
 }
 
 async function index(_, res) {
@@ -33,31 +33,31 @@ async function index(_, res) {
 		})
 	);
 
-	return res.status(200).json(parents);
+	return res.status(200).json({ data: parents });
 }
 
 async function findById({ params }, res) {
 	const [ parent ] = await parentQuery.selectById(params.id);
 
-	if (!parent) return res.status(200).json(null);
+	if (!parent) return res.status(200).json({ data: null });
 
 	parent.students = await selectByParentId(parent.id);
 
-	return res.status(200).json(parent);
+	return res.status(200).json({ data: parent });
 }
 
 async function update({ params, body }, res) {
 	const { id } = params;
-	const updated = parentQuery.updateById(id, body);
+	const succeed = parentQuery.updateById(id, body);
 
-	return res.status(200).json({ updated });
+	return res.status(200).json({ succeed });
 }
 
 async function deleteById({ params }, res) {
     const { id } = params;
-	const deleted = await parentQuery.deleteById(id);
+	const succeed = await parentQuery.deleteById(id);
 
-	return res.status(200).json({ deleted });
+	return res.status(200).json({ succeed });
 }
 
 module.exports = {

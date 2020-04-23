@@ -10,23 +10,12 @@ async function register({ body }, res) {
         value: body.teacherId
     });
 
-    if (!employee) {
-        return res.status(200).json({ 
-            message: "teacherId not found in the database",
-            registered: false
-        });
-    }
+    if (!employee || employee.type !== "Professor") 
+        return res.status(200).json({ succeed: false });
 
-    if (employee.type !== "Professor") {
-        return res.status(200).json({ 
-            message: "This teacherId is not associated a 'teacher' type",
-            registered: false
-        });
-    }
-
-    const registered = await subjectQuery.insert(body);
+    const succeed = await subjectQuery.insert(body);
     
-    return res.status(200).json({ registered });
+    return res.status(200).json({ succeed });
 }
 
 async function index(_, res) {
@@ -43,7 +32,7 @@ async function index(_, res) {
         ]
     });
 
-    return res.status(200).json(subjects);
+    return res.status(200).json({ data: subjects });
 }
 
 async function findById({ params }, res) {
@@ -62,10 +51,9 @@ async function findById({ params }, res) {
         value: params.id
     });
 
-    if (!subject)
-        return res.status(200).json(null);
+    if (!subject) return res.status(200).json({ data: null });
 
-    return res.status(200).json(subject);
+    return res.status(200).json({ data: subject });
 }
 
 async function update({ params, body }, res) {
@@ -77,33 +65,22 @@ async function update({ params, body }, res) {
         value: body.teacherId
     });
 
-    if (!employee) {
-        return res.status(200).json({ 
-            message: "teacherId not found in the database",
-            registered: false
-        });
-    }
-
-    if (employee.type !== "Professor") {
-        return res.status(200).json({ 
-            message: "This teacherId is not associated a 'teacher' type",
-            registered: false
-        });
-    }
-
-    const updated = await subjectQuery.updateById(
+    if (!employee || employee.type !== "Professor")
+        return res.status(200).json({ succeed: false });
+    
+    const succeed = await subjectQuery.updateById(
         params.id,
         body
     );
 
-    return res.status(200).json({ updated });
+    return res.status(200).json({ succeed });
 }
 
 async function deleteById({ params }, res) {
     const { id } = params;
-    const deleted = await subjectQuery.deleteById(id);
+    const succeed = await subjectQuery.deleteById(id);
 
-    return res.status(200).json({ deleted });
+    return res.status(200).json({ succeed });
 }
 
 module.exports = {

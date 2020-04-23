@@ -15,7 +15,7 @@ async function register({ body }, res) {
 		await bcrypt.hash(password, saltRounds)
 		: password;
 
-	const registered = await employeeQuery.insert({
+	const succeed = await employeeQuery.insert({
 		cpf,
 		image,
 		fullName,
@@ -25,7 +25,7 @@ async function register({ body }, res) {
 		type,
 	});
 
-	return res.status(200).json({ registered });
+	return res.status(200).json({ succeed });
 }
 
 async function index(_, res) {
@@ -41,7 +41,7 @@ async function index(_, res) {
 		}
 	}));
 
-	return res.status(200).json(employees);
+	return res.status(200).json({ data: employees });
 }
 
 /**
@@ -53,12 +53,12 @@ async function findById({ params }, res) {
 	const [ employee ] = await employeeQuery.selectByUserId(params.id);
 
 	if (!employee)
-		return res.status(200).json(null);
+		return res.status(200).json({ data: null });
 
 	if (employee.type === "Professor")
 		employee.subjects = await selectByTeacherId(employee.id);
 
-	return res.status(200).json(employee);
+	return res.status(200).json({ data: employee });
 }
 
 async function update({ params, body }, res) {
@@ -66,20 +66,20 @@ async function update({ params, body }, res) {
 	const subjects = await selectByTeacherId(id);
 
 	if (subjects.length > 0 && type === "Gestor")
-		return res.status(200).json({ updated: false });
+		return res.status(200).json({ succeed: false });
 
-	const updated = await employeeQuery.updateById(id, body);
+	const succeed = await employeeQuery.updateById(id, body);
 
-	return res.status(200).json({ updated });
+	return res.status(200).json({ succeed });
 }
 
 async function deleteById({ params }, res) {
-	const deleted = await generalQuery.deleteById({
+	const succeed = await generalQuery.deleteById({
 		table: "User",
 		id: params.id,
 	});
 
-	return res.status(200).json({ deleted });
+	return res.status(200).json({ succeed });
 }
 
 module.exports = {

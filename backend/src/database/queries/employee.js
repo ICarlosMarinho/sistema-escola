@@ -66,7 +66,7 @@ async function updateById(id, { cpf, email, image, fullName, telNumber, type }) 
         connection = await getConnection();
 
         await connection.execute(
-            "CALL update_employee(?, ?, ?, ?, ?, ?, ?, ?)",
+            "CALL update_employee(?, ?, ?, ?, ?, ?, ?)",
             [id, cpf, email, image, fullName, telNumber, type]
         );
 
