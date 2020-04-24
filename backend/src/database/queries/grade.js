@@ -30,7 +30,7 @@ async function insert(grades) {
     }
 }
 
-async function update({ value, testId, studentId }) {
+async function update({ testId, studentId }, value) {
     var connection;
 
     try {

@@ -2,7 +2,7 @@ const gradeQuery = require("../database/queries/grade");
 const generalQuery = require("../database/queries/general");
 
 async function register({ body }, res) {
-    const succeed = await gradeQuery(body);
+    const succeed = await gradeQuery.insert(body);
 
     return res.status(200).json({ succeed });
 }
@@ -35,14 +35,14 @@ async function findByStudentId({ params }, res) {
     return res.status(200).json({ data: grades });
 }
 
-async function update({ body }, res) {
-    const succeed = await gradeQuery.updateById(body);
+async function update({ params, body }, res) {
+    const succeed = await gradeQuery.update(params, body.value);
 
     return res.status(200).json({ succeed });
 }
 
-async function deleteByIds({ body }, res) {
-    const succeed = await gradeQuery.deleteByIds(body);
+async function deleteByIds({ params }, res) {
+    const succeed = await gradeQuery.deleteByIds(params);
 
     return res.status(200).json({ succeed });
 }

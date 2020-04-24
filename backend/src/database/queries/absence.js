@@ -9,7 +9,7 @@ async function insert(absences) {
         await Promise.all(
             absences.map(({ count, date, studentId, subjectId }) => {
                 const promise = connection.execute(
-                    "CALL insert_subject(?, ?, ?, ?)",
+                    "CALL insert_absence(?, ?, ?, ?)",
                     [count, date, studentId, subjectId]
                 );
 
@@ -19,7 +19,7 @@ async function insert(absences) {
 
         return true;
     } catch (error) {
-        console.log(error);
+        console.log(error.message);
 
         return false;
     } finally {

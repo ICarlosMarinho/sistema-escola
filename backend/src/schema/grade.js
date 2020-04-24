@@ -11,12 +11,18 @@ const objSchema = Joi.object({
     testId: Joi.string()
     .length(32)
     .hex()
-    .required(),
+    .required()
+    .alter({
+        update: (schema) => schema.forbidden()
+    }),
 
     studentId: Joi.string()
     .length(32)
     .hex()
     .required()
+    .alter({
+        update: (schema) => schema.forbidden()
+    })
 });
 
 const schema = Joi.array()

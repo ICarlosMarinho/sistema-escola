@@ -1,9 +1,18 @@
 const absenceController = require("../controller/absence");
 const validateData = require("../middleware/getDataValidator");
+const validateToken = require("../middleware/getTokenValidator");
 const router = require("express").Router();
 
+router.get(
+    "/find/:studentId",
+    validateToken(["Gestor", "Professor", "Responsável"]),
+    absenceController.findByStudentId
+);
+
+router.use(validateToken(["Gestor", "Professor"]));
+
 router.post("/register", validateData("absence"), absenceController.register);
-router.get("/find/:studentId/:subjectId", absenceController.find);
+router.get("/find/:subjectId/:studentId", absenceController.find);
 router.put("/update/:id", validateData("absence", "update"), absenceController.update);
 router.delete("/delete/:id", absenceController.deletebyId);
 

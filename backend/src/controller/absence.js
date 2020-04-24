@@ -13,6 +13,22 @@ async function find({ params }, res) {
     return res.status(200).json({ data: absences });
 }
 
+async function findByStudentId({ params }, res) {
+    const absences = await generalQuery.selectByProperty({
+        table: "Absence",
+        fields: [
+            "hex(_id) AS id",
+            "`date`",
+            "`count`",
+            "hex(Subject_id) as subjectId"
+        ],
+        property: "Student_id",
+        value: params.studentId
+    });
+
+    return res.status(200).json({ data: absences });
+}
+
 async function update({ params, body }, res) {
     const succeed = await absenceQuery.updateById(params.id, body);
 
@@ -30,6 +46,7 @@ async function deletebyId({ params }, res) {
 
 module.exports = {
     register,
+    findByStudentId,
     find,
     update,
     deletebyId

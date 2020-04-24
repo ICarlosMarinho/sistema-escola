@@ -9,7 +9,7 @@ async function register({ body }, res) {
 
 async function findByStudentId({ params }, res) {
     const anotations = await generalQuery.selectByProperty({
-        table: "Absence",
+        table: "Anotation",
         fields: [
             "hex(_id) as id",
             "date",
@@ -30,7 +30,10 @@ async function update({ params, body }, res) {
 }
 
 async function deleteById({ params }, res) {
-    const succeed = await generalQuery.deleteById(params.id);
+    const succeed = await generalQuery.deleteById({
+        table: "Anotation",
+        id: params.id
+    });
 
     return res.status(200).json({ succeed });
 }

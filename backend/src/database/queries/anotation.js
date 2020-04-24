@@ -13,7 +13,7 @@ async function insert(anotations) {
         await Promise.all(
             anotations.map(({ date, text, studentId, teacherId }) => {
                 const promise = connection.execute(
-                    "INSERT INTO Anotation (`date`, text, Student_id, Teacher_id) " +
+                    "INSERT INTO Anotation (`date`, text, Student_id, Employee_id) " +
                     "VALUES (?, ?, unhex(?), unhex(?))",
                     [date, text, studentId, teacherId]
                 );
