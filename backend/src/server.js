@@ -10,10 +10,13 @@ const gradeRouter = require("./routes/grade");
 const testRouter = require("./routes/test");
 const anotationRouter = require("./routes/anotation");
 const absenceRouter = require("./routes/absence");
+const userRouter = require("./routes/user");
 
 const port = process.env.PORT || 3000;
 
 app.use(json());
+
+app.use("/user", userRouter);
 app.use("/employee", employeeRouter);
 app.use("/student", studentRouter);
 app.use("/parent", parentRouter);

@@ -1,5 +1,5 @@
 const anotationController = require("../controller/anotation");
-const validateData = require("../middleware/data.validation/getDataValidator");
+const validateData = require("../middleware/getDataValidator");
 const router = require("express").Router();
 
 router.post("/register", validateData("anotation"), anotationController.register);

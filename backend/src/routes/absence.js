@@ -1,5 +1,5 @@
 const absenceController = require("../controller/absence");
-const validateData = require("../middleware/data.validation/getDataValidator");
+const validateData = require("../middleware/getDataValidator");
 const router = require("express").Router();
 
 router.post("/register", validateData("absence"), absenceController.register);

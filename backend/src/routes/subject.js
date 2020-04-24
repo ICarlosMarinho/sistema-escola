@@ -1,5 +1,5 @@
 const subjectController = require("../controller/subject");
-const validateData = require("../middleware/data.validation/getDataValidator");
+const validateData = require("../middleware/getDataValidator");
 const router = require("express").Router();
 
 router.post("/register", validateData("subject"), subjectController.register);

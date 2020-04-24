@@ -1,5 +1,5 @@
 const gradeController = require("../controller/grade");
-const validateData = require("../middleware/data.validation/getDataValidator");
+const validateData = require("../middleware/getDataValidator");
 const router = require("express").Router();
 
 router.post("/register", validateData("grade"), gradeController.register);

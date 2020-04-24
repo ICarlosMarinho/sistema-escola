@@ -14,13 +14,17 @@ const schema = Joi.object({
 		.allow(null)
 		.alter({
 			parent: (schema) => schema.forbidden(),
+			auth: (schema) => schema.forbidden()
 		}),
 
 	fullName: Joi.string()
 		.pattern(/[^a-zÀ-ÿ\s]/i, { invert: true })
 		.min(10)
 		.max(80)
-		.required(),
+		.required()
+		.alter({
+			auth: (schema) => schema.forbidden()
+		})
 });
 
 module.exports = schema;

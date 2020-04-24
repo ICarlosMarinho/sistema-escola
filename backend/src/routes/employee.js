@@ -1,6 +1,9 @@
 const employeeController = require("../controller/employee");
-const validateData = require("../middleware/data.validation/getDataValidator");
+const validateData = require("../middleware/getDataValidator");
+const validateToken = require("../middleware/getTokenValidator");
 const router = require("express").Router();
+
+router.use(validateToken(["Gestor"]));
 
 router.post("/register", validateData("employee"), employeeController.register);
 router.get("/find/:id", employeeController.findById);
