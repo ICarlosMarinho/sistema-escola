@@ -1,0 +1,154 @@
+.home {
+  grid-template-columns: 70% calc(30% - 10px);
+  grid-template-areas:
+    "header header"
+    "main sidebar"
+    "footer footer";
+  gap: 10px;
+  min-height: 475px;
+}
+
+.header {
+  grid-area: header;
+  background-color: #94b8ff;
+}
+
+.main {
+  grid-area: main;
+  background-color: #94b8ff;
+  display: grid;
+  grid-template-areas:
+    "main-news side-news-a"
+    "main-news side-news-b";
+  grid-template-rows: repeat(2, calc(50% - 5px));
+  grid-template-columns: calc(70% - 5px) calc(30% - 5px);
+  gap: 10px;
+  padding: 10px;
+  color: #232323;
+  text-align: center;
+  padding: 10px;
+  overflow: hidden;
+}
+
+.main h1 {
+  font-family: "Nunito", Helvetica, sans-serif;
+  margin-top: 20px;
+}
+
+.main p {
+  font-family: "Abel", serif;
+  margin-top: 50px;
+}
+
+.main-news {
+  grid-area: main-news;
+  background-color: #f6f6f6;
+  padding: 10px;
+  overflow: auto;
+}
+
+.side-news-a {
+  grid-area: side-news-a;
+  background-color: #f6f6f6;
+  padding: 10px;
+  overflow: hidden;
+}
+
+.side-news-b {
+  grid-area: side-news-b;
+  background-color: #f6f6f6;
+  padding: 10px;
+  overflow: hidden;
+}
+
+.sidebar {
+  grid-area: sidebar;
+  background-color: #f6f6f6;
+  overflow: auto;
+}
+
+.student {
+  background-color: #94b8ff;
+  display: flex;
+  flex-direction: column;
+  font-family: "Nunito", sans-serif;
+  color: #232323;
+}
+
+.student-btn-area {
+  display: flex;
+  flex-direction: row;
+  padding: 10px;
+}
+
+.student-btn-area button {
+  width: calc(100% / 3);
+  height: 30px;
+  font-family: "Nunito", sans-serif;
+  font-weight: bolder;
+  color: #fff;
+  font-size: medium;
+  box-shadow: 0 2px 2px #808080;
+}
+
+.grades-btn {
+  border-radius: 5px 0 0 5px;
+  background-color: #1f2d5b;
+}
+
+.absence-btn {
+  border-radius: 0;
+  background-color: #4a5c80;
+}
+
+.notes-btn {
+  border-radius: 0 5px 5px 0;
+  background-color: #7693cc;
+}
+
+.student-detail-area {
+  display: flex;
+  flex-direction: row;
+  padding: 10px;
+  font-size: small;
+  margin-bottom: 20px;
+}
+
+.student-detail-area img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  margin-right: 20px;
+  border: #4a5c80 3px solid;
+}
+
+.student-detail-area h2 {
+  margin-top: 10px;
+}
+
+.footer {
+  grid-area: footer;
+  background-color: #94b8ff;
+}
+
+#home-dropdown {
+  top: 24px;
+  right: 24px;
+}
+
+@media (max-width: 920px) {
+  .home {
+    grid-template-columns: 100%;
+    grid-template-rows: minmax(40px, 70px) 156px auto minmax(40px, 70px);
+    grid-template-areas:
+      "header"
+      "sidebar"
+      "main"
+      "footer";
+  }
+
+  .student {
+    max-width: 394px;
+    min-width: 264.5px;
+  }
+}

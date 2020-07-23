@@ -71,7 +71,8 @@ async function updateById(id, { bCertificate, image, fullName, birthDate, addres
     var connection;
 
     try {
-
+        connection = await getConnection();
+        
         await connection.execute(
             "CALL update_student(?, ? , ?, ?, ?, ?, ?, ?)",
             [id, bCertificate, image, fullName, birthDate, address, desabilities, classId]

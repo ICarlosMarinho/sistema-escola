@@ -22,17 +22,38 @@ async function findByTestId({ params }, res) {
 }
 
 async function findByStudentId({ params }, res) {
-    const grades = await generalQuery.selectByProperty({
-        table: "Grade",
-        fields: [
-            "value",
-            "hex(Test_id) as testId",
-        ],
-        property: "Student_id",
+    const [ student ] = await generalQuery.selectByProperty({
+        table: "Student",
+        fields: ["hex(Class_id) as classId"],
+        property: "_id",
         value: params.studentId
     });
 
-    return res.status(200).json({ data: grades });
+    if (!student) return res.status(200).json(null);
+
+    const subjects = await generalQuery.selectByProperty({
+        table: "Subject",
+        fields: [
+            "hex(_id) as id",
+            "code",
+            "name",
+        ],
+        property: "Class_id",
+        value: student.classId
+    });
+
+    await Promise.all(subjects.map(subject => {
+        const promise = gradeQuery.selectByStudentAndSubjectId(params.studentId, subject.id)
+        .then(grades => subject.grades = grades);
+
+        return promise;
+    }));
+
+    const data = subjects.filter(({ grades }) => {
+        return grades.length;
+    });
+
+    return res.status(200).json(data);
 }
 
 async function update({ params, body }, res) {

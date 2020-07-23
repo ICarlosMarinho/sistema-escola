@@ -30,6 +30,26 @@ async function insert(grades) {
     }
 }
 
+async function selectByStudentAndSubjectId(studentId, subjectId) {
+    var connection;
+
+    try {
+        connection = await getConnection();
+        const [ [ grades ] ] = await connection.execute(
+            "CALL select_grades_by_student_and_subject_id(?, ?)",
+            [studentId, subjectId]
+        );
+
+        return grades;
+    } catch (error) {
+        console.log(error);
+
+        return null;
+    } finally {
+        await connection.end();
+    }
+}
+
 async function update({ testId, studentId }, value) {
     var connection;
 
@@ -74,7 +94,8 @@ async function deleteByIds({ testId, studentId }) {
 
 
 module.exports = {
-    insert, 
+    insert,
+    selectByStudentAndSubjectId, 
     update,
     deleteByIds
 }

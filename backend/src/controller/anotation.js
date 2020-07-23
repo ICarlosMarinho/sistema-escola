@@ -1,5 +1,6 @@
 const anotationQuery = require("../database/queries/anotation");
 const generalQuery = require("../database/queries/general");
+const { selectByClassId } = require("../database/queries/employee");
 
 async function register({ body }, res) {
     const succeed = await anotationQuery.insert(body);
@@ -7,20 +8,20 @@ async function register({ body }, res) {
     res.status(200).json({ succeed });
 }
 
-async function findByStudentId({ params }, res) {
-    const anotations = await generalQuery.selectByProperty({
-        table: "Anotation",
-        fields: [
-            "hex(_id) as id",
-            "date",
-            "text",
-            "hex(Employee_id) as teacherId"
-        ],
-        property: "Student_id",
-        value: params.studentId
-    });
+async function findByStudentAndClassId({ params }, res) {
+    const { studentId, classId } = params;
+    const teachers = await selectByClassId(classId);
 
-    return res.status(200).json({ data: anotations });
+    await Promise.all(teachers.map(teacher => {
+        const promise = anotationQuery.selectByStudentAndTeacherId(studentId, teacher.id)
+        .then(notes => {
+            if (notes.length) teacher.anotations = notes;
+        });
+
+        return promise;
+    }));
+
+    return res.status(200).json(teachers);
 }
 
 async function update({ params, body }, res) {
@@ -40,7 +41,7 @@ async function deleteById({ params }, res) {
 
 module.exports = {
     register,
-    findByStudentId,
+    findByStudentAndClassId,
     update,
     deleteById
 }

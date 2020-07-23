@@ -58,6 +58,25 @@ async function selectByUserId(userId) {
     }
 }
 
+async function selectByClassId(classId) {
+    var connection;
+
+    try {
+        connection = await getConnection();
+        const [ [ teachers ] ] = await connection.execute(
+            "CALL select_teachers_by_class_id(?)",
+            [classId]
+        );
+
+        return teachers;
+    } catch (error) {
+        console.log(error.message);
+
+        return null;
+    } finally {
+        await connection.end();
+    }
+}
 
 async function updateById(id, { cpf, email, image, fullName, telNumber, type }) {
     var connection;
@@ -84,5 +103,6 @@ module.exports = {
     insert,
     index,
     selectByUserId,
+    selectByClassId,
     updateById
 }

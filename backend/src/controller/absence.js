@@ -10,23 +10,40 @@ async function register({ body }, res) {
 async function find({ params }, res) {
     const absences = await absenceQuery.find(params);
 
-    return res.status(200).json({ data: absences });
+    return res.status(200).json(absences);
 }
 
-async function findByStudentId({ params }, res) {
-    const absences = await generalQuery.selectByProperty({
-        table: "Absence",
-        fields: [
-            "hex(_id) AS id",
-            "`date`",
-            "`count`",
-            "hex(Subject_id) as subjectId"
-        ],
-        property: "Student_id",
+async function findTotalByStudentId({ params }, res) {
+    const [ student ] = await generalQuery.selectByProperty({
+        table: "Student",
+        fields: ["hex(Class_id) as classId"],
+        property: "_id",
         value: params.studentId
     });
 
-    return res.status(200).json({ data: absences });
+    if (!student) return res.status(200).json(null);
+
+    const subjects = await generalQuery.selectByProperty({
+        table: "Subject",
+        fields: [
+            "hex(_id) as id",
+            "code",
+            "name",
+        ],
+        property: "Class_id",
+        value: student.classId
+    });
+
+    await Promise.all(subjects.map(subject => {
+        const promise = absenceQuery.findTotal(params.studentId, subject.id)
+        .then(({ value }) => {
+            subject.total = value? parseInt(value) : 0;
+        });
+
+        return promise;
+    }));
+
+    return res.status(200).json(subjects);
 }
 
 async function update({ params, body }, res) {
@@ -46,7 +63,7 @@ async function deletebyId({ params }, res) {
 
 module.exports = {
     register,
-    findByStudentId,
+    findTotalByStudentId,
     find,
     update,
     deletebyId

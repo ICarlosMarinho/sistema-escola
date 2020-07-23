@@ -4,9 +4,9 @@ const validateToken = require("../middleware/getTokenValidator");
 const router = require("express").Router();
 
 router.get(
-    "/findByStudent/:studentId",
+    "/findByStudentAndClass/:studentId/:classId",
     validateToken(["Gestor", "Professor", "Responsável"]),
-    anotationController.findByStudentId
+    anotationController.findByStudentAndClassId
 );
 
 router.use(validateToken(["Gestor", "Professor"]));

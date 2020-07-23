@@ -6,35 +6,25 @@ const schema = person.keys({
     .pattern(/[^0-9]/, { invert: true })
     .min(10)
     .max(11)
-    .required()
-    .alter({
-        auth: (schema) => schema.forbidden()
-    }),
+    .required(),
 
     email: Joi.string()
     .allow(null)
     .max(80)
     .email({ allowUnicode: false })
-    .required()
-    .alter({
-        auth: (schema) => schema.forbidden()
-    }),
+    .required(),
 
     password: Joi.string()
     .allow(null)
     .min(8)
     .max(20)
-    .required()
-    .alter({
-        auth: (schema) => schema.disallow(null)
-    }),
+    .required(),
 
     type: Joi.string()
     .required()
     .valid("Gestor", "Professor")
     .alter({
         parent: (schema) => schema.forbidden(),
-        auth: (schema) => schema.forbidden()
     })
 });
 

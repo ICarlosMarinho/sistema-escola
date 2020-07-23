@@ -34,6 +34,26 @@ async function insert(anotations) {
     }
 }
 
+async function selectByStudentAndTeacherId(studentId, teacherId) {
+    var connection;
+
+    try {
+        connection = await getConnection();
+        const [ [ anotations ] ] = await connection.execute(
+            "CALL select_notes_by_student_and_teacher_id(?, ?)",
+            [studentId, teacherId]
+        );
+
+        return anotations;
+    } catch (error) {
+        console.log(error.message);
+
+        return null;
+    } finally {
+        await connection.end();
+    }
+}
+
 async function updateById(id, { date, text }) {
 
     var connection;
@@ -58,5 +78,6 @@ async function updateById(id, { date, text }) {
 
 module.exports = {
     insert,
+    selectByStudentAndTeacherId,
     updateById
 }

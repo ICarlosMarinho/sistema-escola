@@ -1,0 +1,47 @@
+.login {
+  grid-template-columns: auto minmax(350px, 450px) auto;
+  grid-template-areas:
+    "header header header"
+    ". login-container ."
+    "footer footer footer";
+}
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  background-color: #94b8ff;
+  align-items: center;
+  align-self: center;
+  grid-area: login-container;
+  position: relative;
+  height: 390px;
+  min-width: 350px;
+  max-width: 450px;
+}
+
+.footer {
+  display: flex;
+  grid-area: footer;
+  background-color: #94b8ff;
+}
+
+@media (max-width: 500px) {
+  .login {
+    grid-template-columns: 100%;
+    grid-template-areas:
+      "header"
+      "login-container"
+      "footer";
+    margin: 0;
+  }
+
+  .header,
+  .login-container,
+  .footer {
+    border-radius: 0;
+  }
+
+  .login-container {
+    max-width: 100%;
+  }
+}

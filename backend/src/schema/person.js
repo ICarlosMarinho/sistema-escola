@@ -14,7 +14,6 @@ const schema = Joi.object({
 		.allow(null)
 		.alter({
 			parent: (schema) => schema.forbidden(),
-			auth: (schema) => schema.forbidden()
 		}),
 
 	fullName: Joi.string()
@@ -22,9 +21,6 @@ const schema = Joi.object({
 		.min(10)
 		.max(80)
 		.required()
-		.alter({
-			auth: (schema) => schema.forbidden()
-		})
 });
 
 module.exports = schema;

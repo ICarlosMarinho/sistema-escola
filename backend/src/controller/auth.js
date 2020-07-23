@@ -2,8 +2,12 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const generalQuery = require("../database/queries/general");
 
-async function authenticate({ body }, res) {
-    const { cpf, password } = body;
+async function authenticate({ headers }, res) {
+    
+    const encodedCredentials = headers.authorization.split(" ")[1];
+    const buff = Buffer.from(encodedCredentials, "base64");
+    const [ cpf, password ] = buff.toString("utf-8").split(":");
+
     const [ user ] = await generalQuery.selectByProperty({
         table: "User",
         fields: [
@@ -16,13 +20,26 @@ async function authenticate({ body }, res) {
         value: cpf
     });
 
-    if (!user) return res.status(200).json({ data: "User not found" });
+    if (!user) {
+        return res.status(200).json({ 
+            error: "Usuário não encontrado.", 
+            token: null
+        });
+    }
 
-    if (!user.passwordHash) 
-        return res.status(200).json({ data: "Password not found" });
+    if (!user.passwordHash) {
+        return res.status(200).json({
+            error: "Senha incorreta.",
+            token: null
+        });
+    }
 
-    if (!(await bcrypt.compare(password, user.passwordHash)))
-        return res.status(200).json({ data: "Incorrect password" });
+    if (!(await bcrypt.compare(password, user.passwordHash))) {
+        return res.status(200).json({
+            error: "Senha incorreta.",
+            token: null
+        });
+    }
 
     jwt.sign(
         { id: user.id },
@@ -35,10 +52,18 @@ async function authenticate({ body }, res) {
 
             if (err) {
                 console.log(err.message);
-                return res.status(200).json({ data: "Error on token generation" });
+                return res.status(200).json({
+                    error: "Erro ao gerar token, tente novamente.",
+                    token: null
+                });
             }
 
-            return res.status(200).json({ data: token }); 
+            return res.status(200).json({
+                error: null, 
+                token, 
+                id: user.id, 
+                type: user.type
+            }); 
         }
     );
 }

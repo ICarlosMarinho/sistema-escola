@@ -15,6 +15,12 @@ router.get(
     subjectController.findById
 );
 
+router.get(
+    "/findByClass/:classId",
+    validateToken(["Gestor", "Professor, Responsável"]),
+    subjectController.findByClassId
+);
+
 router.use(validateToken(["Gestor"]));
 
 router.post("/register", validateData("subject"), subjectController.register);

@@ -48,6 +48,26 @@ async function find({ studentId, subjectId }) {
     }
 }
 
+async function findTotal(studentId, subjectId) {
+    var connection;
+
+    try {
+        connection = await getConnection();
+        const [ [ total ] ] = await connection.execute(
+            "CALL select_total_absence(?, ?)",
+            [studentId, subjectId]
+        );
+
+        return total[0];
+    } catch (error) {
+        console.log(error.message);
+
+        return null;
+    } finally {
+        await connection.end();
+    }
+}
+
 async function updateById(id, {date, count}) {
     var connection;
 
@@ -72,5 +92,6 @@ async function updateById(id, {date, count}) {
 module.exports = {
     insert,
     find,
+    findTotal,
     updateById
 }

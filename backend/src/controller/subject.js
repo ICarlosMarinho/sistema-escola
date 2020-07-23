@@ -56,6 +56,23 @@ async function findById({ params }, res) {
     return res.status(200).json({ data: subject });
 }
 
+async function findByClassId({ params }, res) {
+    const subjects = await generalQuery.selectByProperty({
+        table: "Subject",
+        fields: [
+            "hex(_id) as id",
+            "code",
+            "name", 
+            "mins_per_lesson as minsPerLesson",
+            "year",
+        ],
+        property: "Class_id",
+        value: params.classId
+    });
+
+    return res.status(200).json(subjects);
+}
+
 async function update({ params, body }, res) {
 
     const [ employee ] = await generalQuery.selectByProperty({
@@ -87,6 +104,7 @@ module.exports = {
     register,
     index,
     findById,
+    findByClassId,
     update,
     deleteById
 }

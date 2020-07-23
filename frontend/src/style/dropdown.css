@@ -1,0 +1,41 @@
+.dropdown {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  width: fit-content;
+  position: absolute;
+}
+
+.dropdown > button {
+  width: 40px;
+  height: 40px;
+  background-color: #7693cc;
+  box-shadow: 0 2px 2px #808080;
+}
+
+.dropdown > button svg {
+  position: relative;
+  top: 2px;
+}
+
+.dropdown-content {
+  background-color: #f6f6f6;
+  box-shadow: 3px 0 6px #808080;
+  width: fit-content;
+  display: flex;
+  flex-direction: column;
+  margin-top: 5px;
+}
+
+.dropdown-content button {
+  padding: 5px 20px;
+  color: #7693cc;
+  background-color: #f6f6f6;
+  font-family: "Nunito";
+}
+
+.dropdown-content button:hover {
+  background-color: #dfdfdf;
+  transition: ease-in;
+  transition-duration: 0.5s;
+}

@@ -1,6 +1,7 @@
 const app = require("express")();
-const { json } = require("body-parser");
 const dotenv = require("dotenv").config();
+const cors = require("cors");
+const { json } = require("body-parser");
 const employeeRouter = require("./routes/employee");
 const studentRouter = require("./routes/student");
 const parentRouter = require("./routes/parent");
@@ -12,10 +13,10 @@ const anotationRouter = require("./routes/anotation");
 const absenceRouter = require("./routes/absence");
 const userRouter = require("./routes/user");
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3002;
 
 app.use(json());
-
+app.use(cors());
 app.use("/user", userRouter);
 app.use("/employee", employeeRouter);
 app.use("/student", studentRouter);

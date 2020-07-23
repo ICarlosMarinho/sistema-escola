@@ -33,17 +33,17 @@ async function index(_, res) {
 		})
 	);
 
-	return res.status(200).json({ data: parents });
+	return res.status(200).json({ parents });
 }
 
 async function findById({ params }, res) {
 	const [ parent ] = await parentQuery.selectById(params.id);
 
-	if (!parent) return res.status(200).json({ data: null });
+	if (!parent) return res.status(200).json(null);
 
 	parent.students = await selectByParentId(parent.id);
 
-	return res.status(200).json({ data: parent });
+	return res.status(200).json({ parent });
 }
 
 async function update({ params, body }, res) {
